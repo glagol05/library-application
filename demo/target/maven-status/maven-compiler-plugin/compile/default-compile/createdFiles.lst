@@ -1,0 +1,8 @@
+repositories/BorrowingRepository.class
+models/User.class
+com/example/LibraryApplication.class
+models/Borrowing.class
+repositories/BookRepository.class
+repositories/UserRepository.class
+com/example/Main.class
+models/Book.class
