@@ -1,0 +1,28 @@
+meta {
+  name: Login
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8080/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "admin",
+    "password": "Adminadmin1!"
+  }
+}
+
+script:post-response {
+  const token = res.body;
+  bru.setVar("jwt_token", token);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
