@@ -17,7 +17,6 @@ public class JwtService {
 
     public String generateToken(UUID userId) {
         return JWT.create()
-                .withIssuer("http://localhost:8080/service")
                 .withIssuedAt(Instant.now())
                 .withExpiresAt(Instant.now().plus(60, ChronoUnit.MINUTES))
                 .withSubject(userId.toString())

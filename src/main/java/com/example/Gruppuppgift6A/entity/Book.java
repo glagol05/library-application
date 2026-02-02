@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
@@ -21,7 +20,7 @@ public class Book {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(nullable = false)
@@ -32,7 +31,8 @@ public class Book {
     @ManyToMany
     Set<Author> authors = new HashSet<>();
 
-    String borrower;
+    @ManyToOne
+    User borrower;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

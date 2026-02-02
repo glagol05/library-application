@@ -2,11 +2,14 @@ package com.example.Gruppuppgift6A.service;
 
 import com.example.Gruppuppgift6A.entity.Author;
 import com.example.Gruppuppgift6A.entity.Book;
+import com.example.Gruppuppgift6A.entity.User;
 import com.example.Gruppuppgift6A.exceptions.BookNotAvailableException;
 import com.example.Gruppuppgift6A.exceptions.BookNotFoundException;
 import com.example.Gruppuppgift6A.repo.BookRepo;
+import com.example.Gruppuppgift6A.repo.IUserRepo;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public class BookService {
 
     private final BookRepo bookRepo;
+    private final IUserRepo userRepo;
 
     public BookResponse getBook(Long id) {
         Book book = bookRepo.findById(id).orElseThrow(() -> new BookNotFoundException("Incorrect book ID"));
@@ -28,10 +32,11 @@ public class BookService {
 
     @Transactional
     public BookResponse loanBook(Long id, String user) {
+        User userClass = userRepo.findByUsername(user).orElseThrow(() -> new UsernameNotFoundException("Invalid username"));
         Book book = bookRepo.findById(id).orElseThrow(() -> new BookNotFoundException("Incorrect book ID"));
         if (book.isAvailable()) {
             book.setAvailable(false);
-            book.setBorrower(user);
+            book.setBorrower(userClass);
             return new BookResponse(book.getId(), book.getName(), book.isAvailable(),
                     book.getAuthors().stream().map(Author::getName).collect(Collectors.toSet()), book.getGenre());
         } else throw new BookNotAvailableException("Book not available");

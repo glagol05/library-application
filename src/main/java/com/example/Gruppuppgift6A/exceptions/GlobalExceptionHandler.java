@@ -17,4 +17,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> bookNotAvailable(BookNotAvailableException e){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<?> passwordException(InvalidPasswordException e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
 }

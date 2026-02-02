@@ -23,9 +23,7 @@ public class SecurityConfig {
             IUserRepo userRepository
     ) {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/service/register").permitAll()
-                        .requestMatchers("/service/login").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtService, userRepository),

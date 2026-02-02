@@ -4,6 +4,8 @@ import com.example.Gruppuppgift6A.entity.Book;
 import com.example.Gruppuppgift6A.service.BookService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,32 +14,36 @@ import java.util.List;
 @RestController
 @RequestMapping("/service")
 @AllArgsConstructor
-public class RestAPI {
+public class BookController {
 
     private final BookService bookService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookService.BookResponse> getBook (@PathVariable Long id) {
+    public ResponseEntity<BookService.BookResponse> getBook (@AuthenticationPrincipal UserDetails userDetails,
+                                                             @PathVariable Long id) {
         BookService.BookResponse book = bookService.getBook(id);
         return ResponseEntity.ok(book);
     }
 
     @PostMapping("/{id}/loan")
-    public ResponseEntity<BookService.BookResponse> loanBook(@PathVariable Long id, @RequestParam String user) {
-        BookService.BookResponse loaned = bookService.loanBook(id, user);
+    public ResponseEntity<BookService.BookResponse> loanBook(@AuthenticationPrincipal UserDetails userDetails,
+                                                             @PathVariable Long id) {
+        BookService.BookResponse loaned = bookService.loanBook(id, userDetails.getUsername());
 
         return ResponseEntity.ok(loaned);
     }
 
     @PostMapping("/{id}/return")
-    public ResponseEntity<BookService.BookResponse> returnBook(@PathVariable Long id) {
+    public ResponseEntity<BookService.BookResponse> returnBook(@AuthenticationPrincipal UserDetails userDetails,
+                                                               @PathVariable Long id) {
         BookService.BookResponse returned = bookService.returnBook(id);
 
         return ResponseEntity.ok(returned);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<BookService.BookResponse>> search(@RequestParam(required = false) String title,
+    public ResponseEntity<List<BookService.BookResponse>> search(@AuthenticationPrincipal UserDetails userDetails,
+                                                                 @RequestParam(required = false) String title,
                                                                  @RequestParam(required = false) String author,
                                                                  @RequestParam(required = false)Book.Genre genre) {
         List<BookService.BookResponse> books = bookService.searchBooks(title, author, genre);
@@ -45,7 +51,7 @@ public class RestAPI {
     }
 
     @GetMapping("/root")
-    public ResponseEntity<List<BookService.BookResponse>> root(){
+    public ResponseEntity<List<BookService.BookResponse>> root(@AuthenticationPrincipal UserDetails userDetails){
         return ResponseEntity.ok(bookService.allBooks());
     }
 
