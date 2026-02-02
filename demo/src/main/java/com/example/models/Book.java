@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,6 +29,10 @@ public class Book {
     private LocalDate publishDate;
     private boolean available;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @ElementCollection
     @CollectionTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"))
     @Column(name = "genre")
@@ -40,11 +45,14 @@ public class Book {
 
     protected Book() {}
 
-    public Book(String name, String author, LocalDate publishDate, boolean available, List<String> genres, List<String> tags) {
+    public Book(String name, String author, LocalDate publishDate,
+                boolean available, User user,
+                List<String> genres, List<String> tags) {
         this.name = name;
         this.author = author;
         this.publishDate = publishDate;
         this.available = available;
+        this.user = user;
         this.genres = genres;
         this.tags = tags;
     }
