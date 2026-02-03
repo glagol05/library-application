@@ -9,6 +9,7 @@ import com.example.Gruppuppgift6A.repo.BookRepo;
 import com.example.Gruppuppgift6A.repo.IUserRepo;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,8 @@ public class BookService {
 
     @Transactional
     public BookResponse loanBook(Long id, String user) {
-        User userClass = userRepo.findByUsername(user).orElseThrow(() -> new UsernameNotFoundException("Invalid username"));
+        User userClass = userRepo.findByUsername(user).orElseThrow(() ->
+                new UsernameNotFoundException("Invalid username"));
         Book book = bookRepo.findById(id).orElseThrow(() -> new BookNotFoundException("Incorrect book ID"));
         if (book.isAvailable()) {
             book.setAvailable(false);
@@ -54,13 +56,24 @@ public class BookService {
 
     public List<BookResponse> searchBooks(String title, String author, Book.Genre genre) {
         Set<Book> fetchedBooks = new HashSet<>();
-        if (title != null) fetchedBooks.addAll(bookRepo.findAllByNameContainingIgnoreCase(title));
-        if (author != null) fetchedBooks.addAll(bookRepo.findAllByAuthors_NameContainingIgnoreCase(author));
-        if (genre != null) fetchedBooks.addAll(bookRepo.findAllByGenreContaining(genre));
+
+        if (title != null && author != null && genre != null) fetchedBooks.addAll(
+                bookRepo.findByNameContainingIgnoreCaseAndAuthorsNameContainingIgnoreCaseAndGenre(title, author, genre));
+        else if (title != null && author != null) fetchedBooks.addAll(
+                bookRepo.findByNameContainingIgnoreCaseAndAuthorsNameContainingIgnoreCase(title, author));
+        else if (title != null && genre != null) fetchedBooks.addAll(
+                bookRepo.findByNameContainingIgnoreCaseAndGenre(title, genre));
+        else if (author != null && genre != null) fetchedBooks.addAll(
+                bookRepo.findByAuthorsNameContainingIgnoreCaseAndGenre(author, genre));
+        else if (title != null) fetchedBooks.addAll(bookRepo.findAllByNameContainingIgnoreCase(title));
+        else if (author != null) fetchedBooks.addAll(bookRepo.findAllByAuthors_NameContainingIgnoreCase(author));
+        else if (genre != null) fetchedBooks.addAll(bookRepo.findAllByGenre(genre));
+
         return fetchedBooks.stream().map(x -> new BookResponse(
-                x.getId(), x.getName(), x.isAvailable(), x.getAuthors().stream().map(Author::getName).collect(Collectors.toSet()),
-                x.getGenre())).toList();
+                x.getId(), x.getName(), x.isAvailable(), x.getAuthors().stream().map(Author::getName).
+                collect(Collectors.toSet()), x.getGenre())).toList();
     }
+
 
     public List<BookResponse> allBooks() {
         return bookRepo.findAll().stream().map(x -> new BookResponse(
@@ -68,6 +81,7 @@ public class BookService {
                 x.getGenre())).toList();
     }
 
-    public record BookResponse(Long id, String name, Boolean available, Set<String> authorNames, Book.Genre genre) { }
+    public record BookResponse(Long id, String name, Boolean available, Set<String> authorNames, Book.Genre genre) {
+    }
 
 }

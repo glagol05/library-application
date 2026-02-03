@@ -12,15 +12,14 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/service")
+@RequestMapping("/book")
 @AllArgsConstructor
 public class BookController {
 
     private final BookService bookService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookService.BookResponse> getBook (@AuthenticationPrincipal UserDetails userDetails,
-                                                             @PathVariable Long id) {
+    public ResponseEntity<BookService.BookResponse> getBook(@PathVariable Long id) {
         BookService.BookResponse book = bookService.getBook(id);
         return ResponseEntity.ok(book);
     }
@@ -34,24 +33,22 @@ public class BookController {
     }
 
     @PostMapping("/{id}/return")
-    public ResponseEntity<BookService.BookResponse> returnBook(@AuthenticationPrincipal UserDetails userDetails,
-                                                               @PathVariable Long id) {
+    public ResponseEntity<BookService.BookResponse> returnBook(@PathVariable Long id) {
         BookService.BookResponse returned = bookService.returnBook(id);
 
         return ResponseEntity.ok(returned);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<BookService.BookResponse>> search(@AuthenticationPrincipal UserDetails userDetails,
-                                                                 @RequestParam(required = false) String title,
+    public ResponseEntity<List<BookService.BookResponse>> search(@RequestParam(required = false) String title,
                                                                  @RequestParam(required = false) String author,
-                                                                 @RequestParam(required = false)Book.Genre genre) {
+                                                                 @RequestParam(required = false) Book.Genre genre) {
         List<BookService.BookResponse> books = bookService.searchBooks(title, author, genre);
         return ResponseEntity.ok(books);
     }
 
     @GetMapping("/root")
-    public ResponseEntity<List<BookService.BookResponse>> root(@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<List<BookService.BookResponse>> root() {
         return ResponseEntity.ok(bookService.allBooks());
     }
 

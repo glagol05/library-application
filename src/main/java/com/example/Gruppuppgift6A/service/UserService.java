@@ -21,7 +21,7 @@ public class UserService {
     private final IUserRepo userRepo;
     private final JwtService jwtService;
 
-    public UserResponse register (UserController.UserCredentials userCredentials) throws CreateUserException {
+    public UserResponse register (UserController.UserCredentials userCredentials) {
 
         if (userRepo.existsByUsername(userCredentials.username())) {
             throw new UserAlreadyExistsException("User with username " + userCredentials.username() + " already exists");
@@ -29,10 +29,13 @@ public class UserService {
         if (userCredentials.username().length() < 5) {
             throw new CreateUserException("Username too short");
         }
-        if (userCredentials.password().length() < 8) {throw new InvalidPasswordException("Password too short");}
-        if (!userCredentials.password().matches(".*[^a-zA-Z0-9].*")) throw new InvalidPasswordException("Password requires at least one symbol");
-        if (!userCredentials.password().matches(".*[A-Z].*")) throw new InvalidPasswordException("Password requires at least one uppercase letter");
-        if (!userCredentials.password().matches(".*[0-9].*")) throw new InvalidPasswordException("Password requires at least one number");
+        if (userCredentials.password().length() < 8) throw new InvalidPasswordException("Password too short");
+        if (!userCredentials.password().matches(".*[^a-zA-Z0-9].*")) throw new
+                InvalidPasswordException("Password requires at least one symbol");
+        if (!userCredentials.password().matches(".*[A-Z].*")) throw new
+                InvalidPasswordException("Password requires at least one uppercase letter");
+        if (!userCredentials.password().matches(".*[0-9].*")) throw new
+                InvalidPasswordException("Password requires at least one number");
 
         String hashedPassword = BCrypt.withDefaults().hashToString(12, userCredentials.password().toCharArray());
         var newUser = new User(userCredentials.username(), hashedPassword);
@@ -45,12 +48,8 @@ public class UserService {
 
     public UserResponse login(UserController.UserCredentials userCredentials) {
 
-        if (!userRepo.existsByUsername(userCredentials.username())) {
-            throw new NoSuchUsernameException("Invalid username or password");
-        }
-
         User user = userRepo.findByUsername(userCredentials.username()).orElseThrow(() ->
-                new UsernameNotFoundException("Username not found"));
+                new UsernameNotFoundException("Invalid username or password"));
 
         BCrypt.Result result = BCrypt.verifyer().verify(
                 userCredentials.password().toCharArray(),

@@ -22,7 +22,7 @@ public class UserController {
         }
 
         UserService.UserResponse response = userService.login(request);
-        return ResponseEntity.ok(response.token());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
@@ -31,8 +31,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing parameters");
         }
         UserService.UserResponse response = userService.register(request);
-        return ResponseEntity.ok(response.username() + " created successfully!");
+        return ResponseEntity.ok(new Response(response.username() + " created successfully!"));
     }
 
     public record UserCredentials(String username, String password) {}
+    public record Response (String message){}
 }

@@ -18,7 +18,8 @@ body:json {
 }
 
 script:post-response {
-  const token = res.body;
+  const token = res.body.token;
+  console.log("Token:", token);
   bru.setVar("jwt_token", token);
 }
 
